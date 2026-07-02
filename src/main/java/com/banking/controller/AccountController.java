@@ -24,7 +24,7 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{accuntId}")
+    @GetMapping("/{accountId}")
     public ResponseEntity<AccountResponse> getAccount(
             @PathVariable Long accountId){
         AccountResponse response = accountService.getAccountById(accountId);

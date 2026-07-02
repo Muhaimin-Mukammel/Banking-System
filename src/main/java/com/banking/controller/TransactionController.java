@@ -33,7 +33,7 @@ public class TransactionController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/account/{accountId")
+    @GetMapping("/account/{accountId}")
     public ResponseEntity<List<TransactionResponse>> getTransactionForSpecificAccount(
             @PathVariable Long accountId){
         List<TransactionResponse> responses = transactionService.getTransactionForAcc(accountId);
