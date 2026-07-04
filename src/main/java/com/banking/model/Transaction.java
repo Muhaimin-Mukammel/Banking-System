@@ -1,11 +1,18 @@
 package com.banking.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +45,6 @@ public class Transaction {
         this.transactionTime = LocalDateTime.now();
     }
 
-    public Transaction() {}
-
     public Transaction(
             TransactionType transactionType,
             BigDecimal amount,
@@ -51,53 +56,5 @@ public class Transaction {
         this.senderAccount = senderAccount;
         this.receiverAccount = receiverAccount;
         this.status = TransactionStatus.PENDING;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public LocalDateTime getTransactionTime() {
-        return transactionTime;
-    }
-
-    public void setTransactionTime(LocalDateTime transactionTime) {
-        this.transactionTime = transactionTime;
-    }
-
-    public TransactionStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TransactionStatus status) {
-        this.status = status;
-    }
-
-    public Account getReceiverAccount() {
-        return receiverAccount;
-    }
-
-    public void setReceiverAccount(Account receiverAccount) {
-        this.receiverAccount = receiverAccount;
-    }
-
-    public Account getSenderAccount() {
-        return senderAccount;
-    }
-
-    public void setSenderAccount(Account senderAccount) {
-        this.senderAccount = senderAccount;
     }
 }
