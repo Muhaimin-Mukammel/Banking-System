@@ -1,5 +1,6 @@
-package com.banking.security;
+package com.banking.config;
 
+import com.banking.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
