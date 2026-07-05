@@ -2,7 +2,7 @@
 
 A modern, secure **Spring Boot** banking application built with best practices. It supports user registration, JWT authentication, account management, and banking transactions.
 
-> **Version:** V1 — built in 11 days.
+> **Version:** V1 — built in 11 days. ( Excluding planning )
 
 ---
 
