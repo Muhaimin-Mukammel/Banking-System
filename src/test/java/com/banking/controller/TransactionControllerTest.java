@@ -8,13 +8,13 @@ import com.banking.security.JwtService;
 import com.banking.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,7 +58,14 @@ public class TransactionControllerTest {
 
     @BeforeEach
     void setUp(){
-        transactionResponse = new TransactionResponse(TRANSACTION_ID, TRANSACTION_TYPE, AMOUNT, SEND_ACCOUNT_NUMBER, RECEIVE_ACCOUNT_NUMBER, LOCAL_DATE_TIME, TRANSACTION_STATUS);
+        transactionResponse = new TransactionResponse(
+                TRANSACTION_ID,
+                TRANSACTION_TYPE,
+                AMOUNT,
+                SEND_ACCOUNT_NUMBER,
+                RECEIVE_ACCOUNT_NUMBER,
+                LOCAL_DATE_TIME,
+                TRANSACTION_STATUS);
     }
 
     @Test
