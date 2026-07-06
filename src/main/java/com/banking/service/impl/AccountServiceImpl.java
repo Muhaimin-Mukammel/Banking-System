@@ -25,14 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 
 @Service
-public class AccountServiceimpl implements AccountService {
+public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final SecureRandom random = new SecureRandom();
 
-    public AccountServiceimpl(
+    public AccountServiceImpl(
             AccountRepository accountRepository,
             TransactionRepository transactionRepository,
             UserRepository userRepository) {
