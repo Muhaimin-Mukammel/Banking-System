@@ -26,7 +26,7 @@ A modern, secure **Spring Boot** banking application built with best practices. 
 ### Account Management
 - Create different account types (**SAVINGS**, **CURRENT**)
 - Unique account number generation
-- Real-time balance tracking with **pessimistic row-level locking** (`SELECT ... FOR UPDATE`, 5s timeout) — not optimistic locking; there is no `@Version` field on `Account`. Transfers lock both accounts in a fixed order (lower ID first) specifically to avoid deadlocks.
+- Real-time balance tracking with hybrid concurrency control: pessimistic row-level locking (SELECT ... FOR UPDATE with 5s timeout) for critical operations combined with optimistic locking via @Version on the Account entity; transfers lock both accounts in ascending ID order to prevent deadlocks
 
 ### Transactions
 - **Deposit**, **Withdraw**, and **Transfer** operations
