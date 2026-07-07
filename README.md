@@ -233,7 +233,6 @@ Worth addressing before calling this production-grade:
 
 - **`GET /api/transaction` isn't scoped to the caller.** It calls `transactionRepository.findAll()` directly, so any authenticated user can see every transaction in the system. Its sibling endpoints (`/api/transaction/{id}`, `/api/transaction/account/{accountId}`) do check ownership — this one doesn't.
 - **Flyway isn't migrating anything yet.** `flyway-core` and `flyway-database-postgresql` are dependencies, but there's no `src/main/resources/db/migration` folder or any migration scripts anywhere in the repo. Hibernate's `ddl-auto=create-drop` is still what builds the schema, so data doesn't survive a restart.
-- **`jwt.expiration-ms` is probably a typo.** The current value (`864000004`) works out to ~10 days; if 24-hour tokens were intended, it should be `86400000`.
 - **Virtual threads need JDK 21+.** `spring.threads.virtual.enabled=true` is set, but the documented minimum JDK (17) doesn't support virtual threads at all — the setting is silently inactive unless you're actually running on 21+.
 - `AccountLockedException` has a registered handler (`HTTP 423`) but is never thrown anywhere in the current code — harmless, but dead code.
 
@@ -242,7 +241,6 @@ Worth addressing before calling this production-grade:
 ## 📋 Future Enhancements (Roadmap)
 - [ ] Scope `GET /api/transaction` to the authenticated user
 - [ ] Write actual Flyway migration scripts (dependency is already in place)
-- [x] ~~Comprehensive unit & integration tests~~ — well underway: 61 tests as of v1.5
 - [ ] Full role-based access (ROLE_USER, ROLE_ADMIN)
 - [ ] Admin panel
 - [ ] Loan management
