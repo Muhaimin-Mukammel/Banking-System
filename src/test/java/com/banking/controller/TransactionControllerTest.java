@@ -1,5 +1,6 @@
 package com.banking.controller;
 
+import com.banking.annotation.ratelimit.RateLimitInterceptor;
 import com.banking.dto.transaction.TransactionResponse;
 import com.banking.model.TransactionStatus;
 import com.banking.model.TransactionType;
@@ -8,7 +9,6 @@ import com.banking.security.JwtService;
 import com.banking.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,7 +22,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(TransactionController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -43,6 +43,9 @@ public class TransactionControllerTest {
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @MockitoBean
+    private RateLimitInterceptor rateLimitInterceptor;
+
     private TransactionResponse transactionResponse;
 
 
@@ -57,7 +60,9 @@ public class TransactionControllerTest {
     private final TransactionStatus TRANSACTION_STATUS = TransactionStatus.SUCCESS;
 
     @BeforeEach
-    void setUp(){
+    void setUp() throws Exception {
+        when(rateLimitInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+
         transactionResponse = new TransactionResponse(
                 TRANSACTION_ID,
                 TRANSACTION_TYPE,

@@ -1,5 +1,6 @@
 package com.banking.controller;
 
+import com.banking.annotation.ratelimit.RateLimitInterceptor;
 import com.banking.dto.auth.LoginRequest;
 import com.banking.dto.auth.LoginResponse;
 import com.banking.dto.auth.RegisterRequest;
@@ -11,7 +12,6 @@ import com.banking.security.JwtService;
 import com.banking.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +23,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -43,6 +44,9 @@ class UserControllerTest {
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @MockitoBean
+    private RateLimitInterceptor rateLimitInterceptor;
+
     private UserResponse userResponse;
     private LoginResponse loginResponse;
 
@@ -55,7 +59,9 @@ class UserControllerTest {
     private final String TOKEN_TYPE = "Bearer";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        when(rateLimitInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+
         userResponse = new UserResponse(
                 USER_ID,
                 FULL_NAME,

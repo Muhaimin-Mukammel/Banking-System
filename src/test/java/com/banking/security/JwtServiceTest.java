@@ -1,17 +1,15 @@
 package com.banking.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.banking.annotation.ratelimit.RateLimitInterceptor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(JwtService.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -20,12 +18,16 @@ class JwtServiceTest {
     @MockitoBean
     private JwtService jwtService;
 
+    @MockitoBean
+    private RateLimitInterceptor rateLimitInterceptor;
+
     private static final String TEST_EMAIL = "test.user@banking.com";
     private static final String VALID_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NSIsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlLCJleHAiOjE4MTI0NjA4MDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         reset(jwtService);
+        when(rateLimitInterceptor.preHandle(any(), any(), any())).thenReturn(true);
     }
 
     @Test

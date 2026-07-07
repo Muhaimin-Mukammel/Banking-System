@@ -1,5 +1,6 @@
 package com.banking.controller;
 
+import com.banking.annotation.ratelimit.RateLimit;
 import com.banking.dto.account.*;
 import com.banking.service.AccountService;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    @RateLimit(capacity = 20, refillTokens = 20, refillPeriodSeconds = 60)
     @PostMapping("/{accountId}/deposit")
     public ResponseEntity<AccountResponse> deposit(
             @PathVariable Long accountId,
@@ -39,6 +41,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    @RateLimit(capacity = 20, refillTokens = 20, refillPeriodSeconds = 60)
     @PostMapping("/{accountId}/withdraw")
     public ResponseEntity<AccountResponse> withDraw(
             @PathVariable Long accountId,
@@ -47,6 +50,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    @RateLimit(capacity = 20, refillTokens = 20, refillPeriodSeconds = 60)
     @PostMapping("/{accountId}/transfer")
     public ResponseEntity<AccountResponse> transfer(
             @PathVariable Long accountId,

@@ -7,7 +7,7 @@ import com.banking.security.JwtService;
 import com.banking.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import com.banking.annotation.ratelimit.RateLimitInterceptor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @WebMvcTest(AccountController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -40,6 +41,9 @@ public class AccountControllerTest {
     @MockitoBean
     JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @MockitoBean
+    private RateLimitInterceptor rateLimitInterceptor;
+
     private CreateAccountRequest createAccountRequest;
     private DepositRequest depositRequest;
     private TransferRequest transferRequest;
@@ -56,7 +60,9 @@ public class AccountControllerTest {
     private static final BigDecimal AMOUNT = BigDecimal.valueOf(1000);
 
     @BeforeEach
-    void setUp(){
+    void setUp() throws Exception {
+        when(rateLimitInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+
         createAccountRequest = new CreateAccountRequest(ACCOUNT_TYPE);
         depositRequest = new DepositRequest(AMOUNT);
         transferRequest = new TransferRequest(RECEIVE_ACCOUNT_NO, AMOUNT);

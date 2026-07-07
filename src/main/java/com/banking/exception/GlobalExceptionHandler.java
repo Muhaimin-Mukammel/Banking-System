@@ -2,6 +2,7 @@ package com.banking.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -90,6 +91,27 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.", request, null);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitExceeded(
+            RateLimitExceededException ex,
+            HttpServletRequest request) {
+
+        ResponseEntity<ErrorResponse> response = build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request, null);
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+                .body(response.getBody());
+    }
+
+    @ExceptionHandler({AccountLockTimeoutException.class, PessimisticLockingFailureException.class})
+    public ResponseEntity<ErrorResponse> handleLockTimeout(
+            RuntimeException ex,
+            HttpServletRequest request) {
+
+        return build(HttpStatus.CONFLICT,
+                "This account is currently processing another operation. Please try again.",
+                request, null);
     }
 
     private ResponseEntity<ErrorResponse> build(

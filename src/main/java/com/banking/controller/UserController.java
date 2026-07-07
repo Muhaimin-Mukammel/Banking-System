@@ -1,5 +1,6 @@
 package com.banking.controller;
 
+import com.banking.annotation.ratelimit.RateLimit;
 import com.banking.dto.auth.LoginRequest;
 import com.banking.dto.auth.LoginResponse;
 import com.banking.dto.auth.RegisterRequest;
@@ -22,12 +23,14 @@ public class UserController {
         this.userService = userService;
     }
 
+    @RateLimit(capacity = 5, refillTokens = 5, refillPeriodSeconds = 60)
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request){
         UserResponse response = userService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @RateLimit(capacity = 10, refillTokens = 10, refillPeriodSeconds = 60)
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request){
         LoginResponse response = userService.login(request);
@@ -46,6 +49,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @RateLimit(capacity = 30, refillTokens = 30, refillPeriodSeconds = 60)
     @PutMapping("/password")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request){
         userService.changePassword(request);

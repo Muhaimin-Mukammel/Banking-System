@@ -14,6 +14,7 @@ import com.banking.repository.UserRepository;
 import com.banking.security.JwtService;
 import com.banking.security.SecurityUtils;
 import com.banking.service.UserService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,8 +48,13 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
 
-        User saved = userRepository.save(user);
-        return toUserResponse(saved);
+        try {
+            User saved = userRepository.save(user);
+            return toUserResponse(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceAlreadyExistsException(
+                    "An account with email " + request.email() + " already exists");
+        }
     }
 
     @Override
@@ -90,8 +96,13 @@ public class UserServiceImpl implements UserService {
         user.setFullName(request.fullName());
         user.setEmail(request.email());
 
-        User saved = userRepository.save(user);
-        return toUserResponse(saved);
+        try {
+            User saved = userRepository.save(user);
+            return toUserResponse(saved);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResourceAlreadyExistsException(
+                    "An account with email " + request.email() + " already exists");
+        }
     }
 
     @Override

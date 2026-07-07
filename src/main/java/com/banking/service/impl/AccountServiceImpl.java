@@ -5,10 +5,7 @@ import com.banking.dto.account.CreateAccountRequest;
 import com.banking.dto.account.DepositRequest;
 import com.banking.dto.account.TransferRequest;
 import com.banking.dto.account.WithdrawRequest;
-import com.banking.exception.InsufficientBalanceException;
-import com.banking.exception.InvalidAccountOperationException;
-import com.banking.exception.ResourceNotFoundException;
-import com.banking.exception.UnauthorizedAccessException;
+import com.banking.exception.*;
 import com.banking.model.Account;
 import com.banking.model.Transaction;
 import com.banking.model.TransactionStatus;
@@ -19,6 +16,7 @@ import com.banking.repository.TransactionRepository;
 import com.banking.repository.UserRepository;
 import com.banking.security.SecurityUtils;
 import com.banking.service.AccountService;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +59,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse deposit(Long accountId, DepositRequest request) {
-        Account account = getOwnedAccount(accountId);
+        User currentUser = getCurrentUserEntity();
+        Account account = getOwnedAccountForUpdate(accountId, currentUser);
 
         account.setBalance(account.getBalance().add(request.amount()));
         accountRepository.save(account);
@@ -77,7 +76,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse withdraw(Long accountId, WithdrawRequest request) {
-        Account account = getOwnedAccount(accountId);
+        User currentUser = getCurrentUserEntity();
+        Account account = getOwnedAccountForUpdate(accountId, currentUser);
 
         if (account.getBalance().compareTo(request.amount()) < 0) {
             throw new InsufficientBalanceException("Insufficient balance for this withdrawal");
@@ -97,15 +97,24 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse transfer(Long accountId, TransferRequest request) {
-        Account sender = getOwnedAccount(accountId);
-
         if (accountId.equals(request.receiveAccountId())) {
             throw new InvalidAccountOperationException("Cannot transfer to the same account");
         }
 
-        Account receiver = accountRepository.findById(request.receiveAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Receiver account not found with id: " + request.receiveAccountId()));
+        User currentUser = getCurrentUserEntity();
+
+        Long firstId = Math.min(accountId, request.receiveAccountId());
+        Long secondId = Math.max(accountId, request.receiveAccountId());
+
+        Account first = lockAccountOrThrow(firstId);
+        Account second = lockAccountOrThrow(secondId);
+
+        Account sender = accountId.equals(firstId) ? first : second;
+        Account receiver = accountId.equals(firstId) ? second : first;
+
+        if (!sender.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("You do not have access to this account");
+        }
 
         if (sender.getBalance().compareTo(request.amount()) < 0) {
             throw new InsufficientBalanceException("Insufficient balance for this transfer");
@@ -136,6 +145,27 @@ public class AccountServiceImpl implements AccountService {
         }
 
         return account;
+    }
+
+    private Account getOwnedAccountForUpdate(Long accountId, User currentUser) {
+        Account account = lockAccountOrThrow(accountId);
+
+        if (!account.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("You do not have access to this account");
+        }
+
+        return account;
+    }
+
+    private Account lockAccountOrThrow(Long accountId){
+        try{
+            return accountRepository.findByIdForUpdate(accountId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Account not found with id: " + accountId));
+        } catch (PessimisticLockingFailureException e){
+            throw new AccountLockTimeoutException(
+                    "Account " + accountId + " is currently locked by another operation");
+        }
     }
 
     private User getCurrentUserEntity() {
