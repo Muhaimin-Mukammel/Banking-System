@@ -44,6 +44,10 @@ public class Account {
     @JsonIgnore
     private List<Transaction> receivedTransactions = new ArrayList<>();
 
+    @Version
+    @JsonIgnore
+    private Long version;
+
     public Account(String accountNumber, AccountType accountType, User user) {
         this.accountNumber = accountNumber;
         this.accountType = accountType;

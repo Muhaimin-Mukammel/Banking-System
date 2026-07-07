@@ -88,6 +88,9 @@ class AccountServiceImplTest {
         Account account = new Account("100000000" + id, AccountType.SAVINGS, user);
         account.setId(id);
         account.setBalance(balance);
+
+        account.setVersion(0L);
+
         return account;
     }
 
