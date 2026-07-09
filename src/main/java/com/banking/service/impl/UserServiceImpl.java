@@ -14,6 +14,8 @@ import com.banking.repository.UserRepository;
 import com.banking.security.JwtService;
 import com.banking.security.SecurityUtils;
 import com.banking.service.UserService;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -78,6 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "userCahce", key = "T(com.banking.security.SecurityUtils).getCurrentUserEmail()")
     public UserResponse getCurrentUser() {
         return toUserResponse(getCurrentUserEntity());
     }

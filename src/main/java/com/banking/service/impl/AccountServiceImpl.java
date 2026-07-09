@@ -16,6 +16,7 @@ import com.banking.repository.TransactionRepository;
 import com.banking.repository.UserRepository;
 import com.banking.security.SecurityUtils;
 import com.banking.service.AccountService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +52,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Cacheable(value = "accountCache", key = "accountId")
     public AccountResponse getAccountById(Long accountId) {
         Account account = getOwnedAccount(accountId);
         return toAccountResponse(account);

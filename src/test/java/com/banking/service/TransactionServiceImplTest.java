@@ -1,5 +1,6 @@
 package com.banking.service;
 
+import com.banking.dto.transaction.TransactionResponse;
 import com.banking.exception.ResourceNotFoundException;
 import com.banking.exception.UnauthorizedAccessException;
 import com.banking.model.Account;
@@ -28,9 +29,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceImplTest {
@@ -88,9 +88,15 @@ class TransactionServiceImplTest {
     void getAllTransactionsMapsEveryRecord() {
         Transaction t1 = transactionBetween(1L, callerAccount, null);
         Transaction t2 = transactionBetween(2L, null, callerAccount);
-        when(transactionRepository.findAll()).thenReturn(List.of(t1, t2));
 
-        var responses = transactionService.getAllTransactions();
+        when(transactionRepository.findBySenderAccountUserEmailOrReceiverAccountUserEmail(
+                anyString(), anyString()))
+                .thenReturn(List.of(t1, t2));
+
+        List<TransactionResponse> responses = transactionService.getAllTransactions();
+
+        verify(transactionRepository).findBySenderAccountUserEmailOrReceiverAccountUserEmail(
+                anyString(), anyString());
 
         assertEquals(2, responses.size());
     }

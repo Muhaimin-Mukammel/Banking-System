@@ -37,7 +37,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if(probe.isConsumed()){
-            response.addHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
+            response.addHeader("Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
             return true;
         }
 

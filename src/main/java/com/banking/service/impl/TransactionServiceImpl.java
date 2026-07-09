@@ -11,6 +11,8 @@ import com.banking.repository.TransactionRepository;
 import com.banking.repository.UserRepository;
 import com.banking.security.SecurityUtils;
 import com.banking.service.TransactionService;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -31,13 +33,20 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Cacheable(value = "allTransactions", key = "T(com.banking.security.SecurityUtils).getCurrentUserEmail()")
     public List<TransactionResponse> getAllTransactions() {
-        return transactionRepository.findAll().stream()
+
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        return transactionRepository
+                .findBySenderAccountUserEmailOrReceiverAccountUserEmail(email, email)
+                .stream()
                 .map(this::toTransactionResponse)
                 .toList();
     }
 
     @Override
+    @Cacheable(value = "transactionById", key = "#transactionId")
     public TransactionResponse getTransactionById(Long transactionId) {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -57,6 +66,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Cacheable(value = "transactionsByAccount", key = "#accountId")
     public List<TransactionResponse> getTransactionForAcc(Long accountId) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException(
